@@ -1,0 +1,19 @@
+{
+  "name": "Scale Miniatures Race Lobby",
+  "id": "167077324134944028",
+  "api": "1.0.0",
+  "widgetApi": "1.0.0",
+  "editorType": ["figma", "figjam"],
+  "containsWidget": true,
+  "main": "code.js",
+  "ui": "ui.html",
+  "permissions": ["currentuser"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": [
+      "mm-0sdy.onrender.com",
+      "https://raw.githubusercontent.com/SirPrizeNZ/mm/"
+    ],
+    "reasoning": "The widget uses the Render WebSocket relay to coordinate race inputs and fetches the game data files from the pinned GitHub repository commit."
+  }
+}

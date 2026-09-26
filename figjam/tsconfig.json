@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022"],
+    "jsx": "react",
+    "jsxFactory": "figma.widget.h",
+    "jsxFragmentFactory": "figma.widget.Fragment",
+    "strict": true,
+    "noEmit": true,
+    "types": ["@figma/widget-typings", "@figma/plugin-typings"]
+  },
+  "include": ["code.tsx"]
+}

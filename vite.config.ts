@@ -1,0 +1,80 @@
+import { defineConfig, type Plugin } from 'vite';
+import { readFileSync, existsSync, statSync } from 'node:fs';
+import { join, normalize, sep } from 'node:path';
+
+/** Dev-only: serve the local MicroMac folder at /MicroMac/* so the viewer can auto-load with ?dev.
+ *  Never part of a build; game data is not redistributed. */
+function serveGameFiles(): Plugin {
+  const root = join(process.cwd(), 'MicroMac');
+  return {
+    name: 'serve-game-files', apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const prefix = req.url?.startsWith('/MicroMac/') ? '/MicroMac/' : req.url?.startsWith('/golden/') ? '/golden/' : undefined;
+        if (!prefix) return next();
+        const base = prefix === '/MicroMac/' ? root : join(process.cwd(), 'build', 'golden', 'gt');
+        const rel = decodeURIComponent(req.url!.slice(prefix.length).split('?')[0]!);
+        const p = normalize(join(base, rel));
+        // the separator matters: without it `MicroMacAnything` also passes the prefix test
+        if (!p.startsWith(base + sep) || !existsSync(p) || statSync(p).isDirectory()) { res.statusCode = 404; return res.end(); }
+        res.setHeader('Content-Type', 'application/octet-stream'); res.end(readFileSync(p));
+      });
+    },
+  };
+}
+
+/** Dev-only: the deployed site serves /online as online.html (see deploy/Caddyfile), so the dev server has
+ *  to do the same or the address only works in production, which is the worst place to find out. */
+function cleanUrls(): Plugin {
+  return {
+    name: 'clean-urls', apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        const path = (req.url ?? '').split('?')[0];
+        if (path && !path.includes('.') && existsSync(join(process.cwd(), `${path.replace(/\/$/, '')}.html`))) {
+          req.url = `${path.replace(/\/$/, '')}.html${(req.url ?? '').slice(path.length)}`;
+        }
+        next();
+      });
+    },
+  };
+}
+
+/** Vite only copies `public/`, and there is no `public/`. The manifest is the index a served copy of the
+ *  game is read through, and it is the one piece of game metadata this repository keeps (paths, sizes and
+ *  hashes, no content at all), so a build has to carry it. */
+function emitManifest(): Plugin {
+  return {
+    name: 'emit-manifest', apply: 'build',
+    generateBundle() {
+      const p = join(process.cwd(), 'manifest.json');
+      if (existsSync(p)) this.emitFile({ type: 'asset', fileName: 'manifest.json', source: readFileSync(p) });
+    },
+  };
+}
+
+export default defineConfig({
+  plugins: [serveGameFiles(), cleanUrls(), emitManifest()],
+  // The page asks its own origin for /api/poll, so in dev that has to go somewhere. Run `npm run poll`
+  // beside `npm run dev` and the whole thing works locally, voting included; without it the fetch fails and
+  // the page drops the section, which is also worth being able to see.
+  // The relay entry has to come first: Vite matches these in order and `/api` would otherwise swallow it.
+  server: {
+    port: 3000,
+    proxy: {
+      '/api/relay': { target: 'ws://127.0.0.1:8788', ws: true },
+      '/api': 'http://127.0.0.1:8787',
+    },
+  },
+  // Where the built site will live. Everything the pages ask for is relative to it (see GameFiles.fromServer),
+  // so `SM_BASE=/micromachines/ npm run build` is all a deploy under a subfolder needs.
+  base: process.env['SM_BASE'] ?? '/',
+  build: {
+    rollupOptions: {
+      input: {
+        index: 'index.html', viewer: 'viewer.html', race: 'race.html', game: 'game.html',
+        online: 'online.html',
+      },
+    },
+  },
+});

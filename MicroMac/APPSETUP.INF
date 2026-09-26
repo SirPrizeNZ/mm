@@ -1,0 +1,578 @@
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+;
+;  'Micro Machines' Windows Installation Script
+;
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+
+
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; About This File
+; ===============
+;
+; This file, APPSETUP.INF, contains information that InstallWare uses to
+; install applications. This file must be in the same directory as the
+; program files IW.EXE(if used) and INSTALL.EXE. The two files can be on
+; a floppy disk, a hard disk, or a network disk drive.
+;
+; The information in this file determines
+;
+;   * The names of the disks and directories from which, and to which,
+;     InstallWare copies files.
+;
+;   * The name of the group that InstallWare creates in Program Manager's
+;     window, and the names of program items that InstallWare adds to that
+;     group.
+;
+; You can create your own InstallWare program by changing some of the
+; information in this file.
+;
+; The Parts of APPSETUP.INF
+; -------------------------
+;
+; APPSETUP.INF is similar in format to a Windows initialization (.INI) file.
+;
+; Sections: APPSETUP.INF is divided into sections. Each section is identified
+;           by a name enclosed in square brackets.
+;
+;           Most section names are "hard-coded". However, some section names
+;           are defined within other sections, and are therefore easily
+;           customizable.
+;
+; Comments: A comment begins with a semicolon. You can include a comment
+;           on the same line as syntax, as long as it comes after the syntax.
+;
+; Spaces:   Spaces are ignored, except when between double quotes.
+;           Blank lines are also ignored.
+;
+; Sections in This File
+; ---------------------
+;
+; The rest of this file contains the actual sections and statements
+; that make up the working file. It also includes comments that
+; explain each section and statement.
+;
+;
+;
+;
+;
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; INFOFILE
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; The [infofile] section describes various miscellaneous aspects
+; of the installation.  The FILENAME label indicates the name of
+; the text file that is shown to the user when the program starts
+; up.  The APPNAME label is used to refer to the name of the
+; application being installed.
+;
+; The EXEFILE label is used to tell InstallWare that you would
+; like to run a file after the installation is complete.  This
+; is useful for showing a readme file, unpacking some archives,
+; or just starting up the program that was just installed.  In
+; the example below, note that the filename starts with a backslash.
+; This indicates that the program is in the PATH.  Otherwise,
+; it is assumed to be located relative to the installation
+; directory.  The MESSAGE label denotes the text that will be
+; displayed in the message box that prompts the user just before
+; the EXEFILE is run.  If there is no MESSAGE, then the EXEFILE
+; is run without prompting the user.
+; -------------------------------------------------------------
+
+;[infofile]
+;       filename = README
+;       appname  = "'Micro Machines'"
+;       exefile  = "\notepad.exe readme."
+;       message  = "Do you want to view the readme file?"
+
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; DIALOG
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; The [dialog caption] section is used to define the caption
+; of the windows that shown in the INSTALL program.
+; -------------------------------------------------------------
+
+[dialog]
+    caption = "'Micro Machines'"
+
+
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; DATA
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; The [data defdir] section defines the default directory. This
+; directory is placed in the Install location editbox when the
+; program starts.  If the user does not change it, then this
+; will be the base directory of the installation.
+; -------------------------------------------------------------
+
+[data]
+    defdir = C:\MICROM
+
+
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; DISKS
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+;
+; The [disks] section defines the distribution disks that contain the
+; application  files. InstallWare uses this information to tell the user to
+; insert the correct disk.
+;
+; Elsewhere within this .INF file, the distribution disks are normally
+; referred to by a single-character disk ID. This section defines those
+; disk IDs, and includes  information about the disk to which each disk ID
+; refers.
+;
+; The disk ID '0' is reserved; it represents the installation directory --
+; the directory in which the user is installing the application.
+;
+; The format of each disk definition is:
+;
+;     n = path, title
+;
+; where
+;     n       is the disk ID (a single character from 1-9 or A-Z).
+;
+;     path    the path of the source directory from which InstallWare should
+;             copy the files to the disk.  The path can be relative to the
+;             source directory (see examples below).
+;
+;     title   is a descriptive name for the disk. The title should match
+;             the disk's printed or written label exactly.
+;
+; The following statements would define two distribution disks.
+;
+;  1 =.,        "Demo Application Disk 1"
+;  2 =.\files,  "Demo Application Disk 2"
+;
+; The first statement tells InstallWare to refer to Disk 1 as "Demo Application
+; Disk 1". Because the period (.) denotes the current directory, the files
+; on that disk will be copied from the root directory of the
+; distribution disk.
+;
+; The second statement tells InstallWare to refer to Disk 2 as "Demo
+; Application Disk 2"; the files that Disk 2 contains will be copied
+; from the \FILES directory of the distribution disk.
+;
+; You can include as many disk-definition statements as necessary. Every
+; distribution disk should have a corresponding disk-definition statement;
+; otherwise, InstallWare cannot tell the user to insert the appropriate disk.
+;
+; For the purposes of this file we will use this disk definition line:
+
+[disks]
+    1 =., "'Micro Machines'"
+
+
+
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; NEEDED.SPACE
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; This section tells INSTALL how much space is needed on the
+; target disk to do a successful installation.  The user will
+; get an error message if they try to install to a disk that
+; has less space.
+; -------------------------------------------------------------
+
+[needed.space]
+    minspace = 700000
+
+
+
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; DEST.DIRECTORIES
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; The [dest.directories] section contains section-definition statements.
+; Each statement defines a section that lists application files to be
+; copied as part of installation. The sections are organized by file
+; destination; you should define a separate section for each destination
+; directory.
+;
+; Each section definition has the following form:
+;
+;     #section_name, 0:dest_pathname
+;
+; where
+;
+;     #section_name   defines the name of the .INF section that lists the
+;                     files to be copied.
+;     0               is the disk ID that represents the installation directory.
+;                     (0 is a reserved disk ID, and always represents the
+;                     installation directory -- the directory the user specified
+;                     when asked where to install the application.)
+;     dest_pathname   is the pathname of the destination directory, relative
+;                     to the installation directory. For example, "0:FILES"
+;                     represents the FILES subdirectory of the installation
+;                     directory.
+;
+; -------------------------------------------------------------
+; In the example below, the first two entries define application
+; specific directories.  The #app.main directory will be the
+; base directory defined by the user (or the default as
+; described above).  The #app.sub directory will cause a
+; directory called sub to be created off of the base directory.
+;
+; The third and fourth entries refer to the two Windows
+; specific directories: \WINDOWS and \WINDOWS\SYSTEM.
+; INSTALL will find these directories and copy the specified
+; files into them.
+; -------------------------------------------------------------
+
+[dest.directories]
+    #app.main,    0:
+    #app.game1,   0:game1
+;    #app.sub,     0:sub
+    #app.SETUPSYSDIR,    0:SETUPSYSDIR
+    #app.SETUPWINDIR,    0:SETUPWINDIR
+
+
+
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; USER-DEFINED SECTION
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; This section is a user-defined section that lists files to be copied to a
+; particular destination directory. The [dest.directories] section defines.
+; the name of this section and the destination directory of the files.
+;
+; In each section like this one, you should list all files that you want copied
+; to the same destination. (For example, all the files in this section,
+; [app.user], will be copied to the installation directory.)
+;
+; InstallWare copies the files listed in this section in the order in which they
+; are listed.
+;
+; The syntax of each file listing is
+;
+;     N:FILENAME, "Description"
+;
+; where
+;
+;     N:           is the disk ID of the disk that contains the file. (Disk
+;                  IDs are defined in the [disks] section.) If the specified
+;                  disk is not in the disk drive, InstallWare prompts the
+;                  user to insert it.
+;
+;     FILENAME     is the name of the file, including any filename extension.
+;
+;     Description  is descriptive text that InstallWare displays as it is
+;                  copying the file or group of files.  If you leave the
+;                  description blank, InstallWare will continue displaying
+;                  the descriptive text from the previous file. This lets
+;                  you use a general name for a group of files.
+;
+;
+; -------------------------------------------------------------
+; This is the file list for the base directory.
+; -------------------------------------------------------------
+
+[app.main]
+1:ANTIFONT.BIN          ,"1"
+1:BITSFILE.PH0          ,"2"
+1:COMPRESS.PI0          ,"3"
+1:COMPRESS.PI1          ,"4"
+1:COMPRESS.PI2          ,"5"
+1:COMPRESS.PI3          ,"6"
+1:COMPRESS.PI4          ,"7"
+1:COMPRESS.PI5          ,"8"
+1:COMPRESS.PI6          ,"9"
+1:DRIVER0.BIN           ,"10"
+1:DRIVER1.BIN           ,"11"
+1:DRIVER2.BIN           ,"12"
+1:FONT.BIN              ,"13"
+1:GFX1.GFX              ,"14"
+1:INTRO.PAL             ,"15"
+1:MICRO.COM             ,"16"
+1:SM.EXE                ,"17"
+1:MICRO.EXE             ,"18"
+
+1:MICRO.PIF             ,"19"
+1:INSTALL.DAT           ,"20"
+1:INSTALL.EXE           ,"21"
+1:SETUP.EXE             ,"22"
+1:APPSETUP.INF          ,"23"
+1:CTL3D.DLL             ,"23A"
+1:MICRO.ICO             ,"23B"
+
+1:SETTINGS.DAT          ,"23C"
+
+; -------------------------------------------------------------
+; This is the file list for the game1 directory.
+; -------------------------------------------------------------
+
+[app.game1]
+1:GAME1\CHEATS.BIN            ,"24"
+1:GAME1\INTRO.PAL             ,"25"
+1:GAME1\ROUND1.COL            ,"26"
+1:GAME1\ROUND1.DIR            ,"27"
+1:GAME1\ROUND1.PAL            ,"28"
+1:GAME1\ROUND11.MAP           ,"29"
+1:GAME1\ROUND11B.BRK          ,"30"
+1:GAME1\ROUND12.MAP           ,"31"
+1:GAME1\ROUND12B.BRK          ,"32"
+1:GAME1\ROUND13.MAP           ,"33"
+1:GAME1\ROUND13B.BRK          ,"34"
+1:GAME1\ROUND14.MAP           ,"35"
+1:GAME1\ROUND14B.BRK          ,"36"
+1:GAME1\ROUND1BR.CT           ,"37"
+1:GAME1\ROUND1BR.LEV          ,"38"
+1:GAME1\ROUND1BR.PR0          ,"39"
+1:GAME1\ROUND1BR.PR1          ,"40"
+1:GAME1\ROUND1BR.PR2          ,"41"
+1:GAME1\ROUND1BR.VH0          ,"42"
+1:GAME1\ROUND2.COL            ,"43"
+1:GAME1\ROUND2.DIR            ,"44"
+1:GAME1\ROUND2.PAL            ,"45"
+1:GAME1\ROUND21.MAP           ,"46"
+1:GAME1\ROUND21B.BRK          ,"47"
+1:GAME1\ROUND22.MAP           ,"48"
+1:GAME1\ROUND22B.BRK          ,"49"
+1:GAME1\ROUND23.MAP           ,"50"
+1:GAME1\ROUND23B.BRK          ,"51"
+1:GAME1\ROUND24.MAP           ,"52"
+1:GAME1\ROUND24B.BRK          ,"53"
+1:GAME1\ROUND2BR.CT           ,"54"
+1:GAME1\ROUND2BR.LEV          ,"55"
+1:GAME1\ROUND2BR.PR0          ,"56"
+1:GAME1\ROUND2BR.PR1          ,"57"
+1:GAME1\ROUND2BR.PR2          ,"58"
+1:GAME1\ROUND2BR.VH0          ,"59"
+1:GAME1\ROUND3.COL            ,"60"
+1:GAME1\ROUND3.DIR            ,"61"
+1:GAME1\ROUND3.PAL            ,"62"
+1:GAME1\ROUND31.MAP           ,"63"
+1:GAME1\ROUND31B.BRK          ,"64"
+1:GAME1\ROUND32.MAP           ,"65"
+1:GAME1\ROUND32B.BRK          ,"66"
+1:GAME1\ROUND33.MAP           ,"67"
+1:GAME1\ROUND33B.BRK          ,"68"
+1:GAME1\ROUND3BR.CT           ,"69"
+1:GAME1\ROUND3BR.LEV          ,"70"
+1:GAME1\ROUND3BR.PR0          ,"71"
+1:GAME1\ROUND3BR.PR1          ,"72"
+1:GAME1\ROUND3BR.PR2          ,"73"
+1:GAME1\ROUND3BR.VH0          ,"74"
+1:GAME1\ROUND4.COL            ,"75"
+1:GAME1\ROUND4.DIR            ,"76"
+1:GAME1\ROUND4.PAL            ,"77"
+1:GAME1\ROUND41.MAP           ,"78"
+1:GAME1\ROUND41B.BRK          ,"79"
+1:GAME1\ROUND42.MAP           ,"80"
+1:GAME1\ROUND42B.BRK          ,"81"
+1:GAME1\ROUND43.MAP           ,"82"
+1:GAME1\ROUND43B.BRK          ,"83"
+1:GAME1\ROUND4BR.CT           ,"84"
+1:GAME1\ROUND4BR.LEV          ,"85"
+1:GAME1\ROUND4BR.PR0          ,"86"
+1:GAME1\ROUND4BR.PR1          ,"87"
+1:GAME1\ROUND4BR.PR2          ,"88"
+1:GAME1\ROUND4BR.VH0          ,"89"
+1:GAME1\ROUND5.COL            ,"90"
+1:GAME1\ROUND5.DIR            ,"91"
+1:GAME1\ROUND5.PAL            ,"92"
+1:GAME1\ROUND51.MAP           ,"93"
+1:GAME1\ROUND51B.BRK          ,"94"
+1:GAME1\ROUND52.MAP           ,"95"
+1:GAME1\ROUND52B.BRK          ,"96"
+1:GAME1\ROUND53.MAP           ,"97"
+1:GAME1\ROUND53B.BRK          ,"98"
+1:GAME1\ROUND5BR.CT           ,"99"
+1:GAME1\ROUND5BR.LEV          ,"100"
+1:GAME1\ROUND5BR.PR0          ,"101"
+1:GAME1\ROUND5BR.PR1          ,"102"
+1:GAME1\ROUND5BR.VH0          ,"103"
+1:GAME1\ROUND6.COL            ,"104"
+1:GAME1\ROUND6.DIR            ,"105"
+1:GAME1\ROUND6.PAL            ,"106"
+1:GAME1\ROUND61.MAP           ,"107"
+1:GAME1\ROUND61B.BRK          ,"108"
+1:GAME1\ROUND62.MAP           ,"109"
+1:GAME1\ROUND62B.BRK          ,"110"
+1:GAME1\ROUND63.MAP           ,"111"
+1:GAME1\ROUND63B.BRK          ,"112"
+1:GAME1\ROUND6BR.CT           ,"113"
+1:GAME1\ROUND6BR.LEV          ,"114"
+1:GAME1\ROUND6BR.PR0          ,"115"
+1:GAME1\ROUND6BR.PR1          ,"116"
+1:GAME1\ROUND6BR.PR2          ,"117"
+1:GAME1\ROUND6BR.VH0          ,"118"
+1:GAME1\ROUND7.COL            ,"119"
+1:GAME1\ROUND7.DIR            ,"120"
+1:GAME1\ROUND7.PAL            ,"121"
+1:GAME1\ROUND71.MAP           ,"122"
+1:GAME1\ROUND71B.BRK          ,"123"
+1:GAME1\ROUND72.MAP           ,"124"
+1:GAME1\ROUND72B.BRK          ,"125"
+1:GAME1\ROUND73.MAP           ,"126"
+1:GAME1\ROUND73B.BRK          ,"127"
+1:GAME1\ROUND7BR.CT           ,"128"
+1:GAME1\ROUND7BR.LEV          ,"129"
+1:GAME1\ROUND7BR.PR0          ,"130"
+1:GAME1\ROUND7BR.PR1          ,"131"
+1:GAME1\ROUND7BR.VH0          ,"132"
+1:GAME1\ROUND8.COL            ,"133"
+1:GAME1\ROUND8.DIR            ,"134"
+1:GAME1\ROUND8.PAL            ,"135"
+1:GAME1\ROUND81.MAP           ,"136"
+1:GAME1\ROUND81B.BRK          ,"137"
+1:GAME1\ROUND82.MAP           ,"138"
+1:GAME1\ROUND82B.BRK          ,"139"
+1:GAME1\ROUND83.MAP           ,"140"
+1:GAME1\ROUND83B.BRK          ,"141"
+1:GAME1\ROUND8BR.CT           ,"142"
+1:GAME1\ROUND8BR.LEV          ,"143"
+1:GAME1\ROUND8BR.PR0          ,"144"
+1:GAME1\ROUND8BR.PR1          ,"145"
+1:GAME1\ROUND8BR.VH0          ,"146"
+1:GAME1\ROUND9.COL            ,"147"
+1:GAME1\ROUND9.DIR            ,"148"
+1:GAME1\ROUND9.PAL            ,"149"
+1:GAME1\ROUND91.MAP           ,"150"
+1:GAME1\ROUND92.MAP           ,"151"
+1:GAME1\ROUND93.MAP           ,"152"
+1:GAME1\ROUND9BR.CT           ,"153"
+1:GAME1\ROUND9BR.LEV          ,"154"
+1:GAME1\ROUND9BR.PR0          ,"155"
+1:GAME1\ROUND9BR.PR1          ,"156"
+1:GAME1\ROUND9BR.PR2          ,"157"
+1:GAME1\ROUND9BR.VH0          ,"158"
+1:GAME1\STRT_POS.BIN          ,"159"
+
+; -------------------------------------------------------------
+; This is the file list for the \WINDOWS\SYSTEM directory.
+; -------------------------------------------------------------
+
+[app.SETUPSYSDIR]
+;    1:README,          "Readme File"
+
+; -------------------------------------------------------------
+; This is the file list for the \WINDOWS\SYSTEM directory.
+; -------------------------------------------------------------
+
+;[app.SETUPWINDIR]
+;
+
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; PROGMAN.GROUPS
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; The [progman.groups] section (optional) tells InstallWare to create Program
+; Manager groups for your application. (InstallWare then uses DDE to
+; communicate with Program Manager.)
+;
+; The section lists the names of the groups you want to create. You then
+; define additional sections in this file; those sections list the program
+; items you want in each group.
+;
+; The syntax for each group name is:
+;
+;     groupname, [groupfile.grp]
+;
+; where
+;
+;     groupname      is the title you want Program Manager to display
+;                    under the icon that represents the group. (The
+;                    groupname will also be the name of the section
+;                    that defines the contents of the group.)
+;
+;     groupfile.grp  is the filename of the file in which Program Manager
+;                    will save information about the group. (You must include
+;                    the .GRP filename extension.) This parameter is optional;
+;                    if you omit it, InstallWare uses a default name for the
+;                    group file.
+;
+; The following group-definition statement tells InstallWare to create a
+; group named "Bob Dolan Shareware", and store its information in a file
+; named BOBDOLAN.GRP.
+
+[progman.groups]
+    Micro Machines, MICRO.GRP
+
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; USER-DEFINED PROGMAN.GROUPS
+; -------------------------------------------------------------
+; *************************************************************
+; -------------------------------------------------------------
+; This section describes the Program Item Icon to add to the
+; Program Group defined in the section heading.
+;
+; In each section like this one, you should list all items that you want
+; InstallWare to add to the group.
+;
+; The syntax for item-definition statements is:
+;
+;     "Description",    APPFILE.EXE, [ICONFILE.EXE[, N]]
+;
+;where
+;
+;     Description   is the text that will appear below the program icon
+;                   when displayed in the Program Manager group.
+;
+;     APPFILE.EXE   is the command line that starts the application.
+;
+;     ICONFILE.EXE  is the application file that contains the icon you
+;                   want to represent the application. Typically, this is
+;                   the executable application file, but it could be a
+;                   different file. (You can also specify a .ICO file, created
+;                   using the SDKPaint tool.) This parameter is optional; if
+;                   you omit it, InstallWare will use the first icon it finds in
+;                   APPFILE.EXE.
+;
+;     N             is the offset of the icon you want to use within the file
+;                   ICONFILE.EXE.  This parameter is optional; if you omit it,
+;                   InstallWare uses the first icon it finds in ICONFILE.EXE.
+;                   You must include this parameter if the file you specify
+;                   contains more than one icon, and you want to use an icon
+;                   other than the first icon.
+;
+;                   To use the Nth icon, specify the number N-1. For example,
+;                   to use the third icon, specify 2.
+;
+; For example, the following item-definition statement tells InstallWare to add
+; an item titled "Install" to Program Manager. The application command line is
+; a file named INSTALL.EXE which is located in the SUB subdirectory off of the
+; installation directory.
+
+[Micro Machines]
+    "Micro Machines", MICRO.PIF, MICRO.ICO
+;;    "Install & Help", INSTWAR.HLP, INSTALL.ICO
+
+
+; -------------------------------------------------------------
+; -------------------------------------------------------------
+

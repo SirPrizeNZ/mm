@@ -1,0 +1,47 @@
+# Generated captures and extracted data remain local. The separately licensed
+# original game files in MicroMac/ are deliberately tracked by this fork.
+*.zip
+*.exo
+!MicroMac/*.exo
+build/
+re/ghidra/
+re/exports/
+re/unpacked/
+re/dos-tools/
+
+# Captures and dumps
+*.dro
+*.avi
+*.wav
+*.raw
+*.RAW
+MEMDUMP.BIN
+
+# Poll answers from a running instance: local data, never committed
+server/votes.ndjson
+server/*.ndjson
+
+# Tooling
+node_modules/
+dist/
+figjam/dist/
+figjam-evidence/
+coverage/
+__pycache__/
+.pytest_cache/
+.venv/
+*.pyc
+*.log
+
+# Editors, tools and OS
+.DS_Store
+.claude/
+.vscode/
+.idea/
+*.swp
+
+# Safety net: nothing here needs credentials, and nothing here ever should
+.env
+.env.*
+*.pem
+*.key

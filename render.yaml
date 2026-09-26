@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: mm
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: npm install
+    startCommand: node server/relay.mjs
+    healthCheckPath: /api/relay
+    autoDeployTrigger: commit
