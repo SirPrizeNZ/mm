@@ -545,7 +545,8 @@ function showBoard(deal: Deal, table: number[], gen: number, mine: number,
 async function main(): Promise<void> {
   const q = new URLSearchParams(location.search);
   const figjam = (globalThis as typeof globalThis & {
-    __SM_FIGJAM__?: { session: string; relayUrl: string; name?: string };
+    __SM_FIGJAM__?: { session: string; relayUrl: string; name?: string;
+      track?: string; laps?: number };
   }).__SM_FIGJAM__;
 
   const roomLine = $('#roomline');
@@ -579,8 +580,12 @@ async function main(): Promise<void> {
     o.textContent = `Round ${round} · track ${track}${round === 7 ? ' · max 4 cars' : ''}`;
     trackIn.append(o);
   }
-  const legs: Leg[] = [{ round: Number(q.get('round') ?? 2), track: Number(q.get('track') ?? 1) }];
+  const savedTrack = figjam?.track?.match(/^Round ([1-8]) · track ([1-3])(?:$| ·)/);
+  const legs: Leg[] = [{ round: Number(savedTrack?.[1] ?? q.get('round') ?? 2),
+    track: Number(savedTrack?.[2] ?? q.get('track') ?? 1) }];
   trackIn.value = `${legs[0]!.round},${legs[0]!.track}`;
+  if (figjam && Number.isFinite(figjam.laps))
+    lapsIn.value = String(Math.min(MAX_LAPS, Math.max(MIN_LAPS, Math.round(figjam.laps!))));
   const showMap = (value: string): void => {
     if (!figjam || !mapPreview) return;
     const [round, track] = value.split(',').map(Number);
@@ -588,6 +593,8 @@ async function main(): Promise<void> {
     mapPreview.src = `${__MAP_PREVIEW_ROOT__}${round}-${track}.png`;
   };
   showMap(trackIn.value);
+  if (figjam && selection)
+    selection.textContent = `Track: Round ${legs[0]!.round} · track ${legs[0]!.track} · Laps: ${lapsIn.value}`;
   const drawList = (): void => {
     listUl.innerHTML = '';
     legs.forEach((leg, i) => {
@@ -686,7 +693,9 @@ async function main(): Promise<void> {
         track: trackIn.selectedOptions[0]?.textContent ?? 'Round 2 · track 1',
         laps: Number(lapsIn.value) || 3,
       } }, '*');
+      wire.close();
     }, { once: true });
+    if (figjam) window.addEventListener('figjam-close', () => wire.close(), { once: true });
 
     const publishSettings = (): void => {
       const [round, track] = trackIn.value.split(',').map(Number);

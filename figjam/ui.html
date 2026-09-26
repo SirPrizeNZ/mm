@@ -6731,8 +6731,14 @@
       o.textContent = `Round ${round} \xB7 track ${track}${round === 7 ? " \xB7 max 4 cars" : ""}`;
       trackIn.append(o);
     }
-    const legs = [{ round: Number(q.get("round") ?? 2), track: Number(q.get("track") ?? 1) }];
+    const savedTrack = figjam?.track?.match(/^Round ([1-8]) · track ([1-3])(?:$| ·)/);
+    const legs = [{
+      round: Number(savedTrack?.[1] ?? q.get("round") ?? 2),
+      track: Number(savedTrack?.[2] ?? q.get("track") ?? 1)
+    }];
     trackIn.value = `${legs[0].round},${legs[0].track}`;
+    if (figjam && Number.isFinite(figjam.laps))
+      lapsIn.value = String(Math.min(MAX_LAPS, Math.max(MIN_LAPS, Math.round(figjam.laps))));
     const showMap = (value) => {
       if (!figjam || !mapPreview) return;
       const [round, track] = value.split(",").map(Number);
@@ -6740,6 +6746,8 @@
       mapPreview.src = `${"https://mm-0sdy.onrender.com/api/maps/"}${round}-${track}.png`;
     };
     showMap(trackIn.value);
+    if (figjam && selection)
+      selection.textContent = `Track: Round ${legs[0].round} \xB7 track ${legs[0].track} \xB7 Laps: ${lapsIn.value}`;
     const drawList = () => {
       listUl.innerHTML = "";
       legs.forEach((leg, i) => {
@@ -6843,7 +6851,9 @@
           track: trackIn.selectedOptions[0]?.textContent ?? "Round 2 \xB7 track 1",
           laps: Number(lapsIn.value) || 3
         } }, "*");
+        wire.close();
       }, { once: true });
+      if (figjam) window.addEventListener("figjam-close", () => wire.close(), { once: true });
       const publishSettings = () => {
         const [round, track] = trackIn.value.split(",").map(Number);
         legs.splice(0, legs.length, { round, track });
@@ -7062,8 +7072,12 @@
   addEventListener("error", (event) => showError(`Race failed to open: ${event.message}`));
   addEventListener("unhandledrejection", (event) => showError(`Race failed to open: ${String(event.reason)}`));
   addEventListener("message", (event) => {
-    if (started) return;
     const message = event.data?.pluginMessage;
+    if (message?.type === "disconnect") {
+      dispatchEvent(new Event("figjam-close"));
+      return;
+    }
+    if (started) return;
     if (message?.type !== "start" || !/^[A-Z2-9]{20}$/.test(message.session ?? "") || !/^wss?:\/\/[^/]+\/api\/relay$/.test(message.relayUrl ?? "")) return;
     started = true;
     clearInterval(readyTimer);
@@ -7071,6 +7085,8 @@
       session: message.session,
       relayUrl: message.relayUrl,
       name: message.name?.trim().slice(0, 40) || "Guest",
+      track: message.track,
+      laps: message.laps,
       gameDataRoot: "https://raw.githubusercontent.com/SirPrizeNZ/mm/0145c4e8d52d3d001c371fbc18d35d770bc8b7a5/"
     };
     startOnline();

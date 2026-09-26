@@ -17,9 +17,17 @@
     const { session, result, message } = lobby;
     const play = () => new Promise(() => {
       const name = figma.currentUser?.name?.trim().slice(0, 40) || "Guest";
+      figma.on("close", () => figma.ui.postMessage({ type: "disconnect" }));
       figma.ui.onmessage = (reply) => {
         if (reply.type === "ready") {
-          figma.ui.postMessage({ type: "start", session, relayUrl: "wss://mm-0sdy.onrender.com/api/relay", name });
+          figma.ui.postMessage({
+            type: "start",
+            session,
+            relayUrl: "wss://mm-0sdy.onrender.com/api/relay",
+            name,
+            track: lobby.track,
+            laps: lobby.laps
+          });
         } else if (reply.type === "lobby" && reply.session === session && typeof reply.admin === "string" && Array.isArray(reply.players) && reply.players.length <= 10 && reply.players.every((p) => typeof p === "string") && typeof reply.track === "string" && typeof reply.laps === "number") {
           setLobby((current) => current.session === session ? {
             ...current,

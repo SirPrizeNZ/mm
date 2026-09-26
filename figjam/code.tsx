@@ -22,10 +22,12 @@ function RaceLobby() {
   const { session, result, message } = lobby;
   const play = (): Promise<void> => new Promise(() => {
     const name = figma.currentUser?.name?.trim().slice(0, 40) || 'Guest';
+    figma.on('close', () => figma.ui.postMessage({ type: 'disconnect' }));
     figma.ui.onmessage = (reply: { type?: string; session?: string; result?: Result;
       admin?: string; players?: string[]; track?: string; laps?: number }) => {
       if (reply.type === 'ready') {
-        figma.ui.postMessage({ type: 'start', session, relayUrl: __RELAY_URL__, name });
+        figma.ui.postMessage({ type: 'start', session, relayUrl: __RELAY_URL__, name,
+          track: lobby.track, laps: lobby.laps });
       } else if (reply.type === 'lobby' && reply.session === session
           && typeof reply.admin === 'string' && Array.isArray(reply.players)
           && reply.players.length <= 10 && reply.players.every(p => typeof p === 'string')
