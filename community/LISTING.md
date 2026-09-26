@@ -23,6 +23,7 @@ The widget is a lobby and results card. Gameplay runs in each person's local Fig
 - Icon: `images/icon-128x128.png` (128 × 128)
 - Cover: `images/cover-1920x1080.png` (1920 × 1080)
 - Additional image: `images/figjam-lobby-1920x1080.png` (1920 × 1080; actual Figma desktop board)
+- Test capture: `images/ten-client-live-relay.png` (960 × 600; actual ten-client live Render-relay run)
 
 The cover uses a cropped screenshot of the current ten-car game view. The screenshots are visual examples; the local ten-client load check is described below.
 
@@ -34,7 +35,7 @@ The widget reads each participant's Figma display name. The name, race inputs, a
 
 - The widget was inserted on an actual FigJam board in Figma desktop. **Create race** and **Play in FigJam** worked, the local participant showed **ready**, and required game files downloaded automatically with no folder picker.
 - The bundled UI was tested with four separate headless Chromium clients against the deployed Render relay. All four joined distinct slots and rendered about 60 FPS on one computer.
-- The same bundle was tested with ten separate headless Chromium clients against the deployed relay. All ten joined distinct slots; frame measurements were 25–29 FPS per tab on one computer under ten-tab load.
+- The same bundle was tested twice with ten separate headless Chromium clients against the deployed relay. All ten joined distinct slots and every canvas changed during the race. Headless frame counts varied substantially between runs, so these numbers are not a reliable FPS prediction for ten separate users.
 - Automated tests: 215 passed, 35 skipped. Engine tests cover independent input and ten-car simulation.
 - Four or ten separate human Figma accounts have **not** yet been tested together in FigJam. The headless runs verify the game bundle and relay, while the Figma desktop check verifies the widget entry point.
 - Extended races support rounds 1–6 and 8. Round 7 is restricted to four cars by an existing terrain handler gap; the host is informed before starting.
