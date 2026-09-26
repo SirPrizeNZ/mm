@@ -4,8 +4,8 @@ The FigJam widget is the shared lobby and results card. Clicking **Join race** o
 
 ## Playing
 
-1. Insert one **MicroMachine** widget on a FigJam board and click **Create race**.
-2. Each person on the board clicks **Join race**. The first person to join is the admin and sees **Start the race**. The shared card shows the admin, lobby names, track, and laps.
+1. Insert one **MicroMachine** widget on a FigJam board and click **Create race**. This opens the lobby for the creator, who becomes admin. **New race** does the same for the person who clicks it.
+2. Everyone else on the board clicks **Join race**. The shared card shows the admin, lobby names, track, and laps.
 3. The admin chooses one of 24 tracks and the lap count. A thumbnail generated from the original map data appears beside the selection. The admin can start when at least two people have joined and their game files are loaded. There is no need to fill all ten slots; the original four-car grid uses AI for unclaimed cars. Once Start is pressed, that race is closed to late joiners.
 4. After all clients confirm identical game files, everyone sees a five-second countdown. Arrow keys control only the local car: up accelerates, down brakes/reverses, left and right steer. Each view follows its own car; other cars remain in the same simulated world and appear when inside that view.
 5. At the finish, every client gets the standings. Each player's modal sends the named result back to the shared FigJam widget. The relay also exposes the most recent result at `/api/relay/result?session=SESSION`.

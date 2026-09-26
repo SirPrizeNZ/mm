@@ -20,33 +20,40 @@ function RaceLobby() {
   const [lobby, setLobby] = useSyncedState<LobbyState>('lobby',
     { session: '', result: null, message: '' });
   const { session, result, message } = lobby;
-  const play = (): Promise<void> => new Promise(() => {
+  const play = (race: LobbyState): void => {
     const name = figma.currentUser?.name?.trim().slice(0, 40) || 'Guest';
     figma.on('close', () => figma.ui.postMessage({ type: 'disconnect' }));
     figma.ui.onmessage = (reply: { type?: string; session?: string; result?: Result;
       admin?: string; players?: string[]; track?: string; laps?: number }) => {
       if (reply.type === 'ready') {
-        figma.ui.postMessage({ type: 'start', session, relayUrl: __RELAY_URL__, name,
-          track: lobby.track, laps: lobby.laps });
-      } else if (reply.type === 'lobby' && reply.session === session
+        figma.ui.postMessage({ type: 'start', session: race.session, relayUrl: __RELAY_URL__, name,
+          track: race.track, laps: race.laps });
+      } else if (reply.type === 'lobby' && reply.session === race.session
           && typeof reply.admin === 'string' && Array.isArray(reply.players)
           && reply.players.length <= 10 && reply.players.every(p => typeof p === 'string')
           && typeof reply.track === 'string' && typeof reply.laps === 'number') {
-        setLobby(current => current.session === session ? {
+        setLobby(current => current.session === race.session ? {
           ...current, admin: reply.admin!.slice(0, 40),
           players: reply.players!.map(p => p.slice(0, 40)),
           track: reply.track!.slice(0, 40), laps: reply.laps,
         } : current);
-      } else if (reply.type === 'result' && reply.session === session && reply.result
+      } else if (reply.type === 'result' && reply.session === race.session && reply.result
           && Array.isArray(reply.result.points) && reply.result.points.length >= 2
           && reply.result.points.length <= 10) {
         const result = reply.result;
-        setLobby(current => current.session === session
+        setLobby(current => current.session === race.session
           ? { ...current, result, message: 'Race complete' } : current);
       }
     };
     figma.showUI(__html__, { width: 960, height: 720, title: 'MicroMachine' });
-  });
+  };
+  const newRace = (): void => {
+    const name = figma.currentUser?.name?.trim().slice(0, 40) || 'Guest';
+    const race: LobbyState = { session: newSession(), result: null, message: '',
+      admin: name, players: [name], track: 'Round 2 · track 1', laps: 3 };
+    setLobby(race);
+    play(race);
+  };
 
   return <AutoLayout direction="vertical" spacing={10} padding={20} width={340}
     fill="#111014" cornerRadius={12}>
@@ -58,7 +65,7 @@ function RaceLobby() {
     {session
       ? <AutoLayout direction="vertical" spacing={10}>
           <AutoLayout padding={12} fill="#FFE800" cornerRadius={6}
-            onClick={play}>
+            onClick={() => play(lobby)}>
             <Text fontSize={18} fill="#111014">JOIN RACE</Text>
           </AutoLayout>
           {result ? <AutoLayout direction="vertical" spacing={4}>
@@ -69,8 +76,7 @@ function RaceLobby() {
         </AutoLayout>
       : null}
     <AutoLayout padding={9} fill="#EC008C" cornerRadius={6}
-      onClick={() => setLobby({ session: newSession(), result: null, message: '',
-        admin: '', players: [], track: 'Round 2 · track 1', laps: 3 })}>
+      onClick={newRace}>
       <Text fontSize={13} fill="#FFFFFF">{session ? 'NEW RACE' : 'CREATE RACE'}</Text>
     </AutoLayout>
   </AutoLayout>;

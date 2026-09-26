@@ -15,34 +15,48 @@
       { session: "", result: null, message: "" }
     );
     const { session, result, message } = lobby;
-    const play = () => new Promise(() => {
+    const play = (race) => {
       const name = figma.currentUser?.name?.trim().slice(0, 40) || "Guest";
       figma.on("close", () => figma.ui.postMessage({ type: "disconnect" }));
       figma.ui.onmessage = (reply) => {
         if (reply.type === "ready") {
           figma.ui.postMessage({
             type: "start",
-            session,
+            session: race.session,
             relayUrl: "wss://mm-0sdy.onrender.com/api/relay",
             name,
-            track: lobby.track,
-            laps: lobby.laps
+            track: race.track,
+            laps: race.laps
           });
-        } else if (reply.type === "lobby" && reply.session === session && typeof reply.admin === "string" && Array.isArray(reply.players) && reply.players.length <= 10 && reply.players.every((p) => typeof p === "string") && typeof reply.track === "string" && typeof reply.laps === "number") {
-          setLobby((current) => current.session === session ? {
+        } else if (reply.type === "lobby" && reply.session === race.session && typeof reply.admin === "string" && Array.isArray(reply.players) && reply.players.length <= 10 && reply.players.every((p) => typeof p === "string") && typeof reply.track === "string" && typeof reply.laps === "number") {
+          setLobby((current) => current.session === race.session ? {
             ...current,
             admin: reply.admin.slice(0, 40),
             players: reply.players.map((p) => p.slice(0, 40)),
             track: reply.track.slice(0, 40),
             laps: reply.laps
           } : current);
-        } else if (reply.type === "result" && reply.session === session && reply.result && Array.isArray(reply.result.points) && reply.result.points.length >= 2 && reply.result.points.length <= 10) {
+        } else if (reply.type === "result" && reply.session === race.session && reply.result && Array.isArray(reply.result.points) && reply.result.points.length >= 2 && reply.result.points.length <= 10) {
           const result2 = reply.result;
-          setLobby((current) => current.session === session ? { ...current, result: result2, message: "Race complete" } : current);
+          setLobby((current) => current.session === race.session ? { ...current, result: result2, message: "Race complete" } : current);
         }
       };
       figma.showUI(__html__, { width: 960, height: 720, title: "MicroMachine" });
-    });
+    };
+    const newRace = () => {
+      const name = figma.currentUser?.name?.trim().slice(0, 40) || "Guest";
+      const race = {
+        session: newSession(),
+        result: null,
+        message: "",
+        admin: name,
+        players: [name],
+        track: "Round 2 \xB7 track 1",
+        laps: 3
+      };
+      setLobby(race);
+      play(race);
+    };
     return /* @__PURE__ */ figma.widget.h(
       AutoLayout,
       {
@@ -64,7 +78,7 @@
           padding: 12,
           fill: "#FFE800",
           cornerRadius: 6,
-          onClick: play
+          onClick: () => play(lobby)
         },
         /* @__PURE__ */ figma.widget.h(Text, { fontSize: 18, fill: "#111014" }, "JOIN RACE")
       ), result ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", spacing: 4 }, /* @__PURE__ */ figma.widget.h(Text, { fontSize: 16, fill: "#FFE800" }, "After race ", result.gen + 1), result.points.map((score, i) => /* @__PURE__ */ figma.widget.h(Text, { key: i, fontSize: 14, fill: "#FFFFFF" }, result.names?.[i] || "Guest", ": ", score, " points"))) : null, message ? /* @__PURE__ */ figma.widget.h(Text, { fontSize: 12, fill: "#FFFFFF" }, message) : null) : null,
@@ -74,15 +88,7 @@
           padding: 9,
           fill: "#EC008C",
           cornerRadius: 6,
-          onClick: () => setLobby({
-            session: newSession(),
-            result: null,
-            message: "",
-            admin: "",
-            players: [],
-            track: "Round 2 \xB7 track 1",
-            laps: 3
-          })
+          onClick: newRace
         },
         /* @__PURE__ */ figma.widget.h(Text, { fontSize: 13, fill: "#FFFFFF" }, session ? "NEW RACE" : "CREATE RACE")
       )
