@@ -4,7 +4,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 const relayUrl = process.env.SM_RELAY_URL ?? 'wss://mm-0sdy.onrender.com/api/relay';
 if (!/^wss?:\/\/[a-z0-9.:-]+\/api\/relay$/i.test(relayUrl)) throw new Error(`Invalid relay URL: ${relayUrl}`);
 const gameDataRoot = process.env.SM_GAME_DATA_ROOT
-  ?? 'https://raw.githubusercontent.com/SirPrizeNZ/mm/main/';
+  ?? 'https://raw.githubusercontent.com/SirPrizeNZ/mm/0145c4e8d52d3d001c371fbc18d35d770bc8b7a5/';
 if (gameDataRoot) {
   const url = new URL(gameDataRoot);
   const local = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
