@@ -76,6 +76,15 @@ describe('two clients and a relay', () => {
     expect(await r.json()).toMatchObject({ ok: true });
   });
 
+  it('serves only known game-map previews as separate PNG assets', async () => {
+    const map = await fetch(`http://127.0.0.1:${port}/api/maps/2-1.png`);
+    expect(map.status).toBe(200);
+    expect(map.headers.get('content-type')).toBe('image/png');
+    expect([...new Uint8Array(await map.arrayBuffer()).subarray(0, 8)])
+      .toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
+    expect((await fetch(`http://127.0.0.1:${port}/api/maps/9-9.png`)).status).toBe(404);
+  });
+
   it('gives four board players separate slots, forwards only their bytes, and returns standings', async () => {
     const session = 'BCDFGHJKLMNPRSTVWXYZ';
     const clients: Client[] = [];

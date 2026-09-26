@@ -1,14 +1,14 @@
-# Scale Miniatures Race Lobby — Community submission
+# MicroMachine — Community submission
 
 ## Describe your resource
 
-**Name:** Scale Miniatures Race Lobby
+**Name:** MicroMachine
 
 **Tagline:** Race together from a shared FigJam board
 
 **Description:**
 
-Start a shared miniature-car race from a FigJam widget. Each participant opens the game in FigJam, gets a separate car and camera view, and drives with the arrow keys. The first player to join hosts the race and starts it when everyone is ready. A five-second countdown starts all views together; standings return to the shared board when the race ends. Choose two to ten cars, with AI filling unused places.
+Start a shared miniature-car race from a FigJam widget. Each participant opens the game in FigJam, gets a separate car and camera view, and drives with the arrow keys. The first player to join becomes admin and starts when everyone is ready. Pick a track from 24 map previews and set the laps. A five-second countdown starts all views together; standings return to the shared board when the race ends. Up to ten people can race; AI fills unused places in the original four-car grid.
 
 The widget is a lobby and results card. Gameplay runs in each person's local Figma game modal using the existing TypeScript engine. A small WebSocket relay carries race inputs; car positions are not written through FigJam synced state.
 
@@ -24,16 +24,17 @@ The widget is a lobby and results card. Gameplay runs in each person's local Fig
 - Cover: `images/cover-1920x1080.png` (1920 × 1080)
 - Additional image: `images/figjam-lobby-1920x1080.png` (1920 × 1080; actual Figma desktop board)
 - Test capture: `images/ten-client-live-relay.png` (960 × 600; actual ten-client live Render-relay run)
+- Lobby capture: `images/simple-lobby-with-map.png` (actual bundled UI with a selected map)
 
 The cover uses a cropped screenshot of the current ten-car game view. The screenshots are visual examples; the local ten-client load check is described below.
 
 ## Data security disclosure
 
-The widget reads each participant's Figma display name. The name, race inputs, and final scores go to `mm-0sdy.onrender.com`, a public Node WebSocket relay. Active rooms and recent results are held in memory; this project has no account database. The game downloads its original data files from the pinned `SirPrizeNZ/mm` GitHub commit using `raw.githubusercontent.com`. The manifest lists both network destinations. The shared FigJam widget stores the room identifier and final standings; it does not store live car positions.
+The widget reads each participant's Figma display name. The name, race inputs, and final scores go to `mm-0sdy.onrender.com`, a public Node WebSocket relay. The same host serves track-preview PNGs. Active rooms and recent results are held in memory; this project has no account database. The game downloads its original data files from the pinned `SirPrizeNZ/mm` GitHub commit using `raw.githubusercontent.com`. The manifest lists both network destinations. The shared FigJam widget stores the room identifier, lobby names, selected track and laps, and final standings; it does not store live car positions.
 
 ## Reviewer notes / honest verification
 
-- The widget was inserted on an actual FigJam board in Figma desktop. **Create race** and **Play in FigJam** worked, the local participant showed **ready**, and required game files downloaded automatically with no folder picker.
+- The widget was inserted on an actual FigJam board in Figma desktop. **Create race** and **Join race** worked, the local participant and selected map preview appeared, and required game files downloaded automatically with no folder picker.
 - The bundled UI was tested with four separate headless Chromium clients against the deployed Render relay. All four joined distinct slots and rendered about 60 FPS on one computer.
 - The same bundle was tested twice with ten separate headless Chromium clients against the deployed relay. All ten joined distinct slots and every canvas changed during the race. Headless frame counts varied substantially between runs, so these numbers are not a reliable FPS prediction for ten separate users.
 - Automated tests: 215 passed, 35 skipped. Engine tests cover independent input and ten-car simulation.

@@ -19,6 +19,7 @@
  *   SM_RELAY_ROOMS   how many rooms may exist at once      (default 500)
  */
 import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { randomInt } from 'node:crypto';
@@ -184,6 +185,17 @@ function addressOf(req) {
 export function start(port = PORT) {
   const rooms = new Rooms(MAX_ROOMS);
   const server = createServer((req, res) => {
+    const map = /^\/api\/maps\/([1-8])-([1-3])\.png$/.exec((req.url ?? '').split('?')[0]);
+    if (map && req.method === 'GET') {
+      void readFile(resolve(`figjam/map-previews/${map[1]}-${map[2]}.png`)).then(data => {
+        res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=3600',
+          'Access-Control-Allow-Origin': '*' });
+        res.end(data);
+      }).catch(() => {
+        res.writeHead(404); res.end();
+      });
+      return;
+    }
     if ((req.url ?? '').split('?')[0] === '/api/relay/result') {
       const code = new URL(req.url ?? '/', 'http://localhost').searchParams.get('session') ?? '';
       rooms.sweep();

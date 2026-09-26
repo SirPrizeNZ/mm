@@ -3,19 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Scale Miniatures race</title>
+  <title>MicroMachine</title>
   <style>
     :root { color-scheme: dark; font-family: Arial, sans-serif; background: #111014; color: #fff; }
     * { box-sizing: border-box; }
     body { margin: 0; padding: 20px; }
+    #lobby { max-width: 500px; margin: 0 auto; }
     button, input, select { font: inherit; }
     button { cursor: pointer; border: 0; padding: 9px 14px; background: #ffe800; color: #111014; font-weight: 700; }
     button:disabled { opacity: .5; cursor: default; }
     input, select { padding: 8px; }
     .panel { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 12px 0; }
-    #roomline, #needfiles, #board { border: 2px solid #29abe2; padding: 14px; margin: 14px 0; }
+    #roomline, #needfiles, #board { border: 1px solid #3b3940; border-radius: 8px; padding: 14px; margin: 14px 0; }
     #players { margin: 10px 0; padding-left: 22px; }
     #players li { margin: 3px 0; }
+    #admin, #lobby-label { margin: 8px 0; }
+    #map-preview { display: block; width: min(100%, 384px); height: auto; margin: 10px 0;
+      border: 1px solid #4d4b54; image-rendering: pixelated; background: #08080a; }
     #countdown { font-size: 56px; font-weight: bold; color: #ffe800; text-align: center; }
     #code { color: #ffe800; font-size: 24px; font-weight: bold; margin: 0; }
     #list { margin: 8px 0; }
@@ -35,22 +39,25 @@
   <div id="head"><canvas id="hero-canvas"></canvas></div>
   <main>
     <div id="lobby">
-      <h1>Scale Miniatures</h1>
+      <h1>MicroMachine</h1>
       <div id="choices" class="panel" hidden>
         <button id="create" type="button">Make a room</button>
         <form id="joinform"><input id="joincode" maxlength="4"><button type="submit">Join</button></form>
       </div>
       <div id="roomline" hidden>
-        <p id="code"></p><a id="share" href="#"></a><p id="who"></p>
-        <ol id="players"></ol>
+        <p id="code" hidden></p><a id="share" href="#"></a><p id="who" hidden></p>
+        <p id="admin">Admin: —</p>
+        <p id="lobby-label">In lobby:</p><ul id="players"></ul>
+        <p id="selection" hidden>Track: Round 2 · track 1 · Laps: 3</p>
         <p id="countdown" hidden></p>
         <div id="setup" hidden>
-          <div class="panel"><label>Race <select id="kind"><option value="race">A race</option><option value="h2h">Head to head</option></select></label>
-          <label>Laps <input id="laps" type="number" min="3" max="40" value="3"></label>
-          <label>Cars <select id="cars"><option value="4">4</option><option value="2">2</option><option value="3">3</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></label></div>
-          <div class="panel"><label>Track <select id="track"></select></label><button id="add" type="button">Add to playlist</button></div>
-          <ol id="list"></ol>
+          <select id="kind" hidden><option value="race">A race</option></select>
+          <select id="cars" hidden><option value="4">4</option><option value="2">2</option><option value="3">3</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select>
+          <div class="panel"><label>Track <select id="track"></select></label>
+            <label>Laps <input id="laps" type="number" min="3" max="40" value="3"></label></div>
+          <button id="add" type="button" hidden>Add to playlist</button><ol id="list" hidden></ol>
         </div>
+        <img id="map-preview" alt="Selected track map" hidden>
         <button id="start" type="button" hidden disabled>Start the race</button>
       </div>
       <div id="needfiles" hidden>
@@ -6708,6 +6715,9 @@
     const lapsIn = $("#laps");
     const carsIn = $("#cars");
     const trackIn = $("#track");
+    const adminLabel = document.querySelector("#admin");
+    const selection = document.querySelector("#selection");
+    const mapPreview = document.querySelector("#map-preview");
     const listUl = $("#list");
     const join = $("#joincode");
     fullscreen(stage, $("#screen"));
@@ -6722,6 +6732,14 @@
       trackIn.append(o);
     }
     const legs = [{ round: Number(q.get("round") ?? 2), track: Number(q.get("track") ?? 1) }];
+    trackIn.value = `${legs[0].round},${legs[0].track}`;
+    const showMap = (value) => {
+      if (!figjam || !mapPreview) return;
+      const [round, track] = value.split(",").map(Number);
+      mapPreview.hidden = false;
+      mapPreview.src = `${"https://mm-0sdy.onrender.com/api/maps/"}${round}-${track}.png`;
+    };
+    showMap(trackIn.value);
     const drawList = () => {
       listUl.innerHTML = "";
       legs.forEach((leg, i) => {
@@ -6790,18 +6808,55 @@
         const n = wire.peers.length + 1;
         who.textContent = `${myName} \xB7 ${n < 2 ? "waiting for somebody to join\u2026" : `${n} in the room`}`;
         players.replaceChildren();
-        for (const slot of [wire.slot, ...wire.peers].sort((a, b) => a - b)) {
+        const slots = [wire.slot, ...wire.peers].sort((a, b) => a - b);
+        if (adminLabel) adminLabel.textContent = `Admin: ${slots.includes(0) ? names.get(0) ?? "Joining\u2026" : "\u2014"}`;
+        for (const slot of slots) {
           const li = document.createElement("li");
-          li.textContent = `${names.get(slot) ?? "Joining\u2026"}${loaded.has(slot) ? " \xB7 ready" : " \xB7 loading"}`;
+          li.textContent = `${names.get(slot) ?? "Joining\u2026"}${figjam ? "" : loaded.has(slot) ? " \xB7 ready" : " \xB7 loading"}`;
           players.append(li);
         }
         setup.hidden = !host;
+        if (selection) selection.hidden = host;
         start.hidden = !host;
         const contiguous = Array.from({ length: n }, (_, i) => i).every((slot) => slot === wire.slot || wire.peers.includes(slot));
         const allLoaded = Array.from({ length: n }, (_, i) => loaded.has(i)).every(Boolean);
         start.disabled = !host || n < 2 || !contiguous || !allLoaded || started2;
         if (host && !contiguous && !started2) say("An earlier player left. Wait for that car slot to be filled before starting.");
+        else if (figjam && !started2 && n >= 2 && allLoaded)
+          say(host ? "Ready to start." : "Waiting for admin to start\u2026");
+        if (figjam && (host || !slots.includes(0))) parent.postMessage({ pluginMessage: {
+          type: "lobby",
+          session: figjam.session,
+          admin: slots.includes(0) ? names.get(0) ?? "" : "",
+          players: slots.map((slot) => names.get(slot) ?? "Joining\u2026"),
+          track: trackIn.selectedOptions[0]?.textContent ?? "Round 2 \xB7 track 1",
+          laps: Number(lapsIn.value) || 3
+        } }, "*");
       };
+      if (figjam) window.addEventListener("pagehide", () => {
+        const remaining = wire.peers.slice().sort((a, b) => a - b);
+        parent.postMessage({ pluginMessage: {
+          type: "lobby",
+          session: figjam.session,
+          admin: remaining.includes(0) ? names.get(0) ?? "" : "",
+          players: remaining.map((slot) => names.get(slot) ?? "Joining\u2026"),
+          track: trackIn.selectedOptions[0]?.textContent ?? "Round 2 \xB7 track 1",
+          laps: Number(lapsIn.value) || 3
+        } }, "*");
+      }, { once: true });
+      const publishSettings = () => {
+        const [round, track] = trackIn.value.split(",").map(Number);
+        legs.splice(0, legs.length, { round, track });
+        showMap(trackIn.value);
+        if (host) {
+          wire.send(encodeSay({ settings: { track: trackIn.value, laps: Number(lapsIn.value) || 3 } }));
+          room();
+        }
+      };
+      if (figjam) {
+        trackIn.addEventListener("change", publishSettings);
+        lapsIn.addEventListener("change", publishSettings);
+      }
       if (wire.slot >= MAX) {
         say("that room is full.");
         wire.close();
@@ -6916,7 +6971,14 @@
           if (body.request === true) {
             wire.send(encodeSay({ profile: myName, loaded: loaded.has(wire.slot) }));
             if (host && agreed) wire.send(encodeSay({ underway: true }));
+            if (host) wire.send(encodeSay({ settings: { track: trackIn.value, laps: Number(lapsIn.value) || 3 } }));
           }
+        }
+        if (figjam && !host && from === 0 && body.settings && /^([1-8]),([1-3])$/.test(body.settings.track)) {
+          const [round, track] = body.settings.track.split(",").map(Number);
+          const laps = Math.min(MAX_LAPS, Math.max(MIN_LAPS, Math.round(body.settings.laps || MIN_LAPS)));
+          if (selection) selection.textContent = `Track: Round ${round} \xB7 track ${track} \xB7 Laps: ${laps}`;
+          showMap(body.settings.track);
         }
         if (body.underway === true && !agreed) {
           started2 = true;
@@ -6962,7 +7024,7 @@
         wire.send(encodeSay({ go: agreed }));
         void play(agreed);
       });
-      say(host ? "read the code out, wait for everybody, then press Start." : "waiting for the first player to start\u2026");
+      say(figjam ? host ? "Waiting for players to load\u2026" : "Waiting for admin to start\u2026" : host ? "read the code out, wait for everybody, then press Start." : "waiting for the first player to start\u2026");
     };
     $("#create").addEventListener("click", () => {
       void enter();
@@ -7017,7 +7079,7 @@
   var readyTimer = setInterval(announceReady, 1e3);
   announceReady();
   setTimeout(() => {
-    if (!started) showError("Waiting for the FigJam widget to connect. Close this window and try Play in FigJam again.");
+    if (!started) showError("Waiting for the FigJam widget to connect. Close this window and try Join race again.");
   }, 5e3);
 })();
 </script>

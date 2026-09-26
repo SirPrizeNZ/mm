@@ -30,5 +30,5 @@ const announceReady = (): void => parent.postMessage({ pluginMessage: { type: 'r
 const readyTimer = setInterval(announceReady, 1000);
 announceReady();
 setTimeout(() => {
-  if (!started) showError('Waiting for the FigJam widget to connect. Close this window and try Play in FigJam again.');
+  if (!started) showError('Waiting for the FigJam widget to connect. Close this window and try Join race again.');
 }, 5000);

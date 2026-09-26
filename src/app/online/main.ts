@@ -32,6 +32,8 @@ import { startHero } from '../landing/hero';
 import { startClock } from './clock';
 import type { NetTransport } from '../../net/transport';
 
+declare const __MAP_PREVIEW_ROOT__: string;
+
 const VP = DOS_VIEWPORT;
 const TICK = 1 / 70.086;                  // one VGA frame
 /** Agreed, never read from the local SETTINGS.DAT: fn 3ad0 picks it by benchmark and the physics reads it. */
@@ -557,6 +559,9 @@ async function main(): Promise<void> {
   const lapsIn = $<HTMLInputElement>('#laps');
   const carsIn = $<HTMLSelectElement>('#cars');
   const trackIn = $<HTMLSelectElement>('#track');
+  const adminLabel = document.querySelector<HTMLElement>('#admin');
+  const selection = document.querySelector<HTMLElement>('#selection');
+  const mapPreview = document.querySelector<HTMLImageElement>('#map-preview');
   const listUl = $('#list');
   const join = $<HTMLInputElement>('#joincode');
   fullscreen(stage, $<HTMLCanvasElement>('#screen'));
@@ -575,6 +580,14 @@ async function main(): Promise<void> {
     trackIn.append(o);
   }
   const legs: Leg[] = [{ round: Number(q.get('round') ?? 2), track: Number(q.get('track') ?? 1) }];
+  trackIn.value = `${legs[0]!.round},${legs[0]!.track}`;
+  const showMap = (value: string): void => {
+    if (!figjam || !mapPreview) return;
+    const [round, track] = value.split(',').map(Number);
+    mapPreview.hidden = false;
+    mapPreview.src = `${__MAP_PREVIEW_ROOT__}${round}-${track}.png`;
+  };
+  showMap(trackIn.value);
   const drawList = (): void => {
     listUl.innerHTML = '';
     legs.forEach((leg, i) => {
@@ -639,19 +652,55 @@ async function main(): Promise<void> {
       const n = wire.peers.length + 1;
       who.textContent = `${myName} · ${n < 2 ? 'waiting for somebody to join…' : `${n} in the room`}`;
       players.replaceChildren();
-      for (const slot of [wire.slot, ...wire.peers].sort((a, b) => a - b)) {
+      const slots = [wire.slot, ...wire.peers].sort((a, b) => a - b);
+      if (adminLabel) adminLabel.textContent = `Admin: ${slots.includes(0) ? names.get(0) ?? 'Joining…' : '—'}`;
+      for (const slot of slots) {
         const li = document.createElement('li');
-        li.textContent = `${names.get(slot) ?? 'Joining…'}${loaded.has(slot) ? ' · ready' : ' · loading'}`;
+        li.textContent = `${names.get(slot) ?? 'Joining…'}${figjam ? '' : loaded.has(slot) ? ' · ready' : ' · loading'}`;
         players.append(li);
       }
       setup.hidden = !host;
+      if (selection) selection.hidden = host;
       start.hidden = !host;
       const contiguous = Array.from({ length: n }, (_, i) => i)
         .every(slot => slot === wire.slot || wire.peers.includes(slot));
       const allLoaded = Array.from({ length: n }, (_, i) => loaded.has(i)).every(Boolean);
       start.disabled = !host || n < 2 || !contiguous || !allLoaded || started;
       if (host && !contiguous && !started) say('An earlier player left. Wait for that car slot to be filled before starting.');
+      else if (figjam && !started && n >= 2 && allLoaded)
+        say(host ? 'Ready to start.' : 'Waiting for admin to start…');
+      if (figjam && (host || !slots.includes(0))) parent.postMessage({ pluginMessage: {
+        type: 'lobby', session: figjam.session, admin: slots.includes(0) ? names.get(0) ?? '' : '',
+        players: slots.map(slot => names.get(slot) ?? 'Joining…'),
+        track: trackIn.selectedOptions[0]?.textContent ?? 'Round 2 · track 1',
+        laps: Number(lapsIn.value) || 3,
+      } }, '*');
     };
+
+    if (figjam) window.addEventListener('pagehide', () => {
+      const remaining = wire.peers.slice().sort((a, b) => a - b);
+      parent.postMessage({ pluginMessage: {
+        type: 'lobby', session: figjam.session,
+        admin: remaining.includes(0) ? names.get(0) ?? '' : '',
+        players: remaining.map(slot => names.get(slot) ?? 'Joining…'),
+        track: trackIn.selectedOptions[0]?.textContent ?? 'Round 2 · track 1',
+        laps: Number(lapsIn.value) || 3,
+      } }, '*');
+    }, { once: true });
+
+    const publishSettings = (): void => {
+      const [round, track] = trackIn.value.split(',').map(Number);
+      legs.splice(0, legs.length, { round: round!, track: track! });
+      showMap(trackIn.value);
+      if (host) {
+        wire.send(encodeSay({ settings: { track: trackIn.value, laps: Number(lapsIn.value) || 3 } }));
+        room();
+      }
+    };
+    if (figjam) {
+      trackIn.addEventListener('change', publishSettings);
+      lapsIn.addEventListener('change', publishSettings);
+    }
 
     // Before the handlers, not after: closing the socket reports everybody in the room as having left, and
     // a leave handler already in place would talk over the sentence that explains what actually happened.
@@ -760,7 +809,8 @@ async function main(): Promise<void> {
     wire.onPacket = (from, data) => {
       const p = decodePacket(data);
       if (!p || p.kind !== SAY) return;
-      let body: { go?: Deal; ready?: number; fp?: number; profile?: string; loaded?: boolean; request?: boolean; underway?: boolean };
+      let body: { go?: Deal; ready?: number; fp?: number; profile?: string; loaded?: boolean; request?: boolean; underway?: boolean;
+        settings?: { track: string; laps: number } };
       try { body = JSON.parse(p.text) as typeof body; } catch { return; }
       if (typeof body.profile === 'string') {
         names.set(from, body.profile.trim().slice(0, 40) || 'Guest');
@@ -770,7 +820,14 @@ async function main(): Promise<void> {
         if (body.request === true) {
           wire.send(encodeSay({ profile: myName, loaded: loaded.has(wire.slot) }));
           if (host && agreed) wire.send(encodeSay({ underway: true }));
+          if (host) wire.send(encodeSay({ settings: { track: trackIn.value, laps: Number(lapsIn.value) || 3 } }));
         }
+      }
+      if (figjam && !host && from === 0 && body.settings && /^([1-8]),([1-3])$/.test(body.settings.track)) {
+        const [round, track] = body.settings.track.split(',').map(Number);
+        const laps = Math.min(MAX_LAPS, Math.max(MIN_LAPS, Math.round(body.settings.laps || MIN_LAPS)));
+        if (selection) selection.textContent = `Track: Round ${round} · track ${track} · Laps: ${laps}`;
+        showMap(body.settings.track);
       }
       if (body.underway === true && !agreed) {
         started = true; room(); say('This race has already started. Join the next one from the FigJam board.');
@@ -811,7 +868,8 @@ async function main(): Promise<void> {
       void play(agreed);
     });
 
-    say(host ? 'read the code out, wait for everybody, then press Start.' : 'waiting for the first player to start…');
+    say(figjam ? (host ? 'Waiting for players to load…' : 'Waiting for admin to start…')
+      : (host ? 'read the code out, wait for everybody, then press Start.' : 'waiting for the first player to start…'));
   };
 
   $('#create').addEventListener('click', () => { void enter(); });
