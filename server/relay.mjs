@@ -15,7 +15,6 @@
  * Configuration, all optional:
  *   PORT             host-assigned port (Render, etc.)
  *   SM_RELAY_PORT    local port override                   (default 8788)
- *   SM_RELAY_PROXY   set to 1 behind a reverse proxy, to read X-Forwarded-For
  *   SM_RELAY_ROOMS   how many rooms may exist at once      (default 500)
  */
 import { createServer } from 'node:http';
@@ -170,17 +169,7 @@ export function tag(slot, payload) {
 // ---------------------------------------------------------------- the server
 
 const PORT = Number(process.env.PORT ?? process.env.SM_RELAY_PORT ?? 8788);
-const TRUST_PROXY = process.env.SM_RELAY_PROXY === '1';
 const MAX_ROOMS = Number(process.env.SM_RELAY_ROOMS ?? MAX_ROOMS_DEFAULT);
-
-function addressOf(req) {
-  if (TRUST_PROXY) {
-    const fwd = req.headers['x-forwarded-for'];
-    const first = (Array.isArray(fwd) ? fwd[0] : fwd)?.split(',')[0]?.trim();
-    if (first) return first;
-  }
-  return req.socket.remoteAddress ?? 'unknown';
-}
 
 export function start(port = PORT) {
   const rooms = new Rooms(MAX_ROOMS);
@@ -224,7 +213,7 @@ export function start(port = PORT) {
     socket.write(handshake(key));
     socket.setNoDelay(true);                 // every millisecond here is a millisecond of input delay
 
-    const client = { socket, code: undefined, slot: -1, who: addressOf(req) };
+    const client = { socket, code: undefined, slot: -1 };
     let buffer = Buffer.alloc(0);
     let carry = null;
 

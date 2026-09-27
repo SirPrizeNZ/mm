@@ -20,7 +20,9 @@ describe('FigJam race creation', () => {
         h: (_kind: unknown, props: Record<string, unknown>, ...children: (Node | string | null)[]): Node => ({ props, children }),
         useSyncedState: (_key: string, initial: Record<string, unknown>) => {
           if (!lobby.session) lobby = { ...initial, ...lobby };
-          return [lobby, (next: Record<string, unknown>) => { lobby = typeof next === 'function' ? next(lobby) : next; }];
+          return [lobby, (next: Record<string, unknown> | ((current: Record<string, unknown>) => Record<string, unknown>)) => {
+            lobby = typeof next === 'function' ? next(lobby) : next;
+          }];
         },
         register: (component: () => Node) => { render = component; },
       },
