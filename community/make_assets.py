@@ -25,7 +25,7 @@ board = Image.open(HERE / "source" / "current-live-board-compact.jpg").convert("
 cover = Image.new("RGB", (1920, 1080), "#111116")
 d = ImageDraw.Draw(cover)
 panel(d, (74, 76, 1846, 1004), "#1b1a20", 42, "#3b3940", 3)
-d.text((142, 192), "MicroMachine", font=font(90, True), fill="#ffe500")
+d.text((142, 192), "MiniGrid Racers", font=font(90, True), fill="#ffe500")
 d.text((147, 402), "Shared races in FigJam", font=font(47, True), fill="white")
 d.text((147, 472), "One lobby. Your own car and view.", font=font(32), fill="#d5d1db")
 panel(d, (142, 565, 710, 671), "#ffe500", 22)

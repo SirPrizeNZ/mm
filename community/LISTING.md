@@ -1,8 +1,8 @@
-# MicroMachine — Community submission
+# MiniGrid Racers — Community submission
 
 ## Describe your resource
 
-**Name:** MicroMachine
+**Name:** MiniGrid Racers
 
 **Tagline:** Race together from a shared FigJam board
 
@@ -20,17 +20,16 @@ The widget is a lobby and results card. Gameplay runs in each person's local Fig
 
 **Privacy policy:** https://github.com/SirPrizeNZ/mm/blob/main/community/PRIVACY.md
 
-**Rights disclosure:** The gameplay and images use data from the original Micro Machines game. The name, original game files, and derived artwork should be presented to Figma as such. Do not describe this as an official release or imply an affiliation unless the rights-holder permission explicitly allows it.
+**Rights disclosure:** The gameplay and images use data from the original Micro Machines game. The original game files and derived artwork should be presented to Figma as such. MiniGrid Racers is a separate working title, not a claim of official affiliation.
 
 ## Images
 
 - Icon: `images/icon-128x128.png` (128 × 128)
-- Cover: `images/cover-1920x1080.png` (1920 × 1080)
-- Additional image: `images/figjam-lobby-1920x1080.png` (1920 × 1080; actual Figma desktop board)
+- Cover: `images/cover-minigrid-racers.png` (1672 × 941; illustrative title graphic)
 - Test capture: `images/ten-client-live-relay.png` (960 × 600; actual ten-client live Render-relay run)
-- Lobby capture: `images/simple-lobby-with-map.png` (actual bundled UI with a selected map)
+- Lobby capture: `images/minigrid-lobby-with-map.png` (actual new bundled UI with two players and a selected map)
 
-The cover uses a cropped ten-car test view. Its bottom car/name labels are cut off, so replace this image with a clean, complete capture before submission. The screenshots are visual examples; the local ten-client load check is described below.
+The cover is an AI-generated illustration, not a gameplay screenshot. The other listed images are actual test captures. `images/figjam-lobby-1920x1080.png` and `images/simple-lobby-with-map.png` are retained only as old-brand evidence and must not be submitted with this listing. Capture the renamed widget in Figma desktop before submission.
 
 ## Data security disclosure
 
@@ -41,6 +40,7 @@ The widget reads each participant's Figma display name. The name, race inputs, a
 - The widget was inserted on an actual FigJam board in Figma desktop. The prior **Create race** and **Join race** flow worked, the local participant and selected map preview appeared, and required game files downloaded automatically with no folder picker. The newer automatic-admin Create/New Race flow passed a widget regression test but has not yet been visually rechecked in Figma desktop.
 - The bundled UI was tested with four separate headless Chromium clients against the deployed Render relay. All four joined distinct slots and rendered on one computer; headless frame counts do not predict performance on separate users' devices.
 - The same bundle was tested twice with ten separate headless Chromium clients against the deployed relay. All ten joined distinct slots and every canvas changed during the race. Headless frame counts varied substantially between runs, so these numbers are not a reliable FPS prediction for ten separate users.
+- The renamed MiniGrid Racers bundle joined two separate headless Chromium clients against the deployed relay. Both showed Sam as admin, saw the selected track/laps, and loaded the 256-pixel map preview.
 - On 28 September 2026, the full suite passed: 217 tests passed and 35 were skipped. Tests cover independent input, ten-car simulation, and the automatic-admin widget flow. Run the suite again for the final submitted build.
 - Four or ten separate human Figma accounts have **not** yet been tested together in FigJam. The headless runs verify the game bundle and relay, while the Figma desktop check verifies the widget entry point.
 - Extended races support rounds 1–6 and 8. Round 7 is restricted to four cars by an existing terrain handler gap; the host is informed before starting.
@@ -50,7 +50,7 @@ The widget reads each participant's Figma display name. The name, race inputs, a
 
 1. Enable two-factor authentication on the publishing Figma account. Figma's Publish widget wizard currently blocks this account until that is enabled.
 2. Confirm that the rights-holder permission covers public Figma Community distribution of the original files, derived images, and intended name. Preserve a copy of those terms for the review process.
-3. Recheck Create/New Race in Figma desktop and run a race with separate human accounts. Replace the cropped cover screenshot.
+3. Recheck Create/New Race in Figma desktop and run a race with separate human accounts. Capture the renamed board widget for an accurate listing preview.
 4. In Figma desktop, select the development widget, open **Publish widget**, and enter the fields above. Add the icon and images, complete the data-security questions using the disclosure above, and review the final details.
 5. Submit for Community review. After approval, replace the development widget on the shared FigJam board with the published listing once. Collaborators with board edit access then use that shared widget; they do not import code individually.
 

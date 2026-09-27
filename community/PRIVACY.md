@@ -1,8 +1,8 @@
-# MicroMachine widget privacy notice
+# MiniGrid Racers widget privacy notice
 
 Last updated: 28 September 2026
 
-MicroMachine is a multiplayer racing widget for FigJam. This notice covers the widget and its game relay at `mm-0sdy.onrender.com`.
+MiniGrid Racers is a multiplayer racing widget for FigJam. This notice covers the widget and its game relay at `mm-0sdy.onrender.com`.
 
 ## Information used
 

@@ -10,11 +10,12 @@ describe('FigJam race creation', () => {
     let render!: () => Node;
     const posted: Record<string, unknown>[] = [];
     let modalOpens = 0;
+    let modalTitle = '';
     const figma = {
       currentUser: { name: 'Sam' },
       ui: { onmessage: (_message: unknown) => {}, postMessage: (message: Record<string, unknown>) => posted.push(message) },
       on: () => {},
-      showUI: () => { modalOpens++; },
+      showUI: (_html: string, options: { title: string }) => { modalOpens++; modalTitle = options.title; },
       widget: {
         AutoLayout: 'AutoLayout', Text: 'Text',
         h: (_kind: unknown, props: Record<string, unknown>, ...children: (Node | string | null)[]): Node => ({ props, children }),
@@ -34,6 +35,7 @@ describe('FigJam race creation', () => {
       const create = card.children.at(-1) as Node;
       (create.props.onClick as () => void)();
       expect(modalOpens).toBe(attempt + 1);
+      expect(modalTitle).toBe('MiniGrid Racers');
       expect(lobby.admin).toBe('Sam');
       expect(lobby.players).toEqual(['Sam']);
       expect(lobby.session).toMatch(/^[A-Z2-9]{20}$/);

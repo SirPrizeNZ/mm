@@ -2,20 +2,18 @@
 
 ## Assessment
 
-**Prepare, but do not submit yet.** The FigJam lobby is compact and understandable, and the listing has an icon, screenshots, support URL, accurate network destinations, and a public privacy notice. The main review risks are rights scope, unverified current widget behaviour with separate Figma users, and one cropped cover image.
+**Prepare, but do not submit yet.** The FigJam lobby is compact and understandable, and the listing has an icon, a new title graphic, actual test captures, a support URL, accurate network destinations, and a public privacy notice. The main review risks are rights scope and unverified current widget behaviour with separate Figma users.
 
 ## Name and provenance
 
-`MicroMachine` differs from `Micro Machines` by only a space and the plural ending. The screenshots and downloaded files come from the original game. A different title alone would not resolve rights in the original files or artwork. Keep the origin and the separate game-data licence notice visible. Before a public submission, confirm that the rights-holder permission covers **public Figma Community distribution**, the original game files, derived track previews/screenshots, and the proposed product name. Do not claim an official affiliation unless that permission includes one.
-
-If the permission covers game data but not the mark, a distinct working title such as **Pocket Circuit Racing** is clearer for the listing and widget UI. That would require coordinated changes to the manifest, widget, game modal, listing, and images. Do not rename solely to disguise the original content.
+**MiniGrid Racers** is the working title. A quick web search found no exact game-title match; that is not trademark clearance. `MiniRacers` and `Pocket Racers` already have active or historical game uses. The screenshots and downloaded files still come from the original Micro Machines game. A different title does not resolve rights in the original files or artwork. Keep the origin and separate game-data licence notice visible. Before a public submission, confirm that the rights-holder permission covers **public Figma Community distribution** and the original files and derived track previews/screenshots. Do not claim an official affiliation unless that permission includes one.
 
 ## UI and listing fixes before submission
 
 1. Reopen the newly built widget in Figma desktop. Verify **Create Race** and **New Race** immediately open the creator's lobby and show that person as admin. The latest flow passed a widget regression test, but the desktop visual check is still outstanding.
 2. Run a race from one shared board with at least two separate Figma accounts, then four. Check each person's keyboard controls, map selection, countdown, finish, return of results, and close/rejoin. The earlier local headless multi-client tests do not substitute for this.
 3. Repair the known quick close/rejoin case that can leave admin vacant before the race starts.
-4. Replace `images/cover-1920x1080.png`: the ten-car crop cuts off the bottom car/name labels. Use a clean capture of the actual widget and game; avoid a mockup that looks like live gameplay if it is not.
+4. Capture the renamed widget on the actual FigJam board and add it to the listing. The new cover is an illustration, clearly distinct from the actual UI captures. Do not submit the old-brand images.
 5. Keep the listing instructions short: creator becomes admin; others click Join Race; desktop keyboard required; two players minimum. Update reviewer notes to match the exact build submitted.
 6. Enable two-factor authentication on the publisher's Figma account if the publication wizard still requires it.
 

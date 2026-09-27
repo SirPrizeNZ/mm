@@ -45,7 +45,7 @@ function RaceLobby() {
           ? { ...current, result, message: 'Race complete' } : current);
       }
     };
-    figma.showUI(__html__, { width: 960, height: 720, title: 'MicroMachine' });
+    figma.showUI(__html__, { width: 960, height: 720, title: 'MiniGrid Racers' });
   };
   const newRace = (): void => {
     const name = figma.currentUser?.name?.trim().slice(0, 40) || 'Guest';
@@ -57,7 +57,7 @@ function RaceLobby() {
 
   return <AutoLayout direction="vertical" spacing={10} padding={20} width={340}
     fill="#111014" cornerRadius={12}>
-    <Text fontSize={24} fill="#FFE800">MicroMachine</Text>
+    <Text fontSize={24} fill="#FFE800">MiniGrid Racers</Text>
     <Text fontSize={14} fill="#FFFFFF">Admin: {lobby.admin || '—'}</Text>
     <Text fontSize={14} width={300} fill="#FFFFFF">In lobby: {lobby.players?.length ? lobby.players.join(', ') : '—'}</Text>
     <Text fontSize={14} fill="#FFFFFF">Track: {lobby.track || 'Round 2 · track 1'}</Text>

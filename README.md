@@ -1,6 +1,6 @@
-# Scale Miniatures FigJam Racing
+# MiniGrid Racers for FigJam
 
-The FigJam widget lets people on one board join a shared Micro Machines style race. Each player opens their own game view, drives their own car with the arrow keys, and sees the same race simulation. Races support up to ten players.
+MiniGrid Racers lets people on one FigJam board join a shared miniature-car race. Each player opens their own game view, drives their own car with the arrow keys, and sees the same race simulation. Races support up to ten players. The implementation uses the Scale Miniatures engine and original Micro Machines game data described below.
 
 ## Use it in FigJam
 

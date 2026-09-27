@@ -41,7 +41,7 @@
           setLobby((current) => current.session === race.session ? { ...current, result: result2, message: "Race complete" } : current);
         }
       };
-      figma.showUI(__html__, { width: 960, height: 720, title: "MicroMachine" });
+      figma.showUI(__html__, { width: 960, height: 720, title: "MiniGrid Racers" });
     };
     const newRace = () => {
       const name = figma.currentUser?.name?.trim().slice(0, 40) || "Guest";
@@ -67,7 +67,7 @@
         fill: "#111014",
         cornerRadius: 12
       },
-      /* @__PURE__ */ figma.widget.h(Text, { fontSize: 24, fill: "#FFE800" }, "MicroMachine"),
+      /* @__PURE__ */ figma.widget.h(Text, { fontSize: 24, fill: "#FFE800" }, "MiniGrid Racers"),
       /* @__PURE__ */ figma.widget.h(Text, { fontSize: 14, fill: "#FFFFFF" }, "Admin: ", lobby.admin || "\u2014"),
       /* @__PURE__ */ figma.widget.h(Text, { fontSize: 14, width: 300, fill: "#FFFFFF" }, "In lobby: ", lobby.players?.length ? lobby.players.join(", ") : "\u2014"),
       /* @__PURE__ */ figma.widget.h(Text, { fontSize: 14, fill: "#FFFFFF" }, "Track: ", lobby.track || "Round 2 \xB7 track 1"),
