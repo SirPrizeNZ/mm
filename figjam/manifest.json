@@ -12,9 +12,8 @@
   "networkAccess": {
     "allowedDomains": [
       "https://mm-0sdy.onrender.com",
-      "wss://mm-0sdy.onrender.com",
-      "https://raw.githubusercontent.com/SirPrizeNZ/mm/0145c4e8d52d3d001c371fbc18d35d770bc8b7a5/"
+      "wss://mm-0sdy.onrender.com"
     ],
-    "reasoning": "The widget uses the Render WebSocket relay to coordinate race inputs and fetches the game data files from the pinned GitHub repository commit."
+    "reasoning": "The widget uses the Render WebSocket relay to coordinate race inputs and return the final result. All tracks and art are bundled with the widget."
   }
 }

@@ -33,7 +33,8 @@ describe('FigJam race creation', () => {
     for (let attempt = 0; attempt < 2; attempt++) {
       const card = render();
       const create = card.children.at(-1) as Node;
-      (create.props.onClick as () => void)();
+      const active = (create.props.onClick as () => Promise<void>)();
+      expect(typeof active.then).toBe('function'); // A pending click promise keeps Figma's widget UI alive.
       expect(modalOpens).toBe(attempt + 1);
       expect(modalTitle).toBe('MiniGrid Racers');
       expect(lobby.admin).toBe('Sam');

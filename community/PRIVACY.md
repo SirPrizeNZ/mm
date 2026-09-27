@@ -9,7 +9,7 @@ MiniGrid Racers is a multiplayer racing widget for FigJam. This notice covers th
 - The widget reads your Figma display name when you join. It does not request your email address, Figma user ID, password, or access to other board content.
 - The shared FigJam widget stores the race session identifier, lobby display names, selected track and lap count, and race standings. People who can view the board can see this information.
 - Your game window sends your display name, gameplay input packets, and final standings through the WebSocket relay so everyone in the same race can play together. The relay sends those packets to the other players in your room.
-- The game downloads files from a pinned `SirPrizeNZ/mm` GitHub commit and map previews from the relay. Those services receive ordinary network requests. Their infrastructure may process connection information under their own policies.
+- The game draws its original tracks, map previews, and cars locally. The Render relay receives ordinary network requests and its infrastructure may process connection information under its own policies.
 
 ## Storage and retention
 
@@ -19,7 +19,7 @@ FigJam stores the shared lobby and result data on the board until someone starts
 
 ## Purpose and sharing
 
-The information above is used only to connect players, run the race, and display results. It is shared with other participants in the race and with the infrastructure providers needed to operate the widget: Figma, Render, and GitHub. This project has no ads, analytics SDK, accounts, or data sales.
+The information above is used only to connect players, run the race, and display results. It is shared with other participants in the race and with the infrastructure providers needed to operate the widget: Figma and Render. This project has no ads, analytics SDK, accounts, or data sales.
 
 ## Your choices and contact
 

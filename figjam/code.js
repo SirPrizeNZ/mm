@@ -17,31 +17,37 @@
     const { session, result, message } = lobby;
     const play = (race) => {
       const name = figma.currentUser?.name?.trim().slice(0, 40) || "Guest";
-      figma.on("close", () => figma.ui.postMessage({ type: "disconnect" }));
-      figma.ui.onmessage = (reply) => {
-        if (reply.type === "ready") {
-          figma.ui.postMessage({
-            type: "start",
-            session: race.session,
-            relayUrl: "wss://mm-0sdy.onrender.com/api/relay",
-            name,
-            track: race.track,
-            laps: race.laps
-          });
-        } else if (reply.type === "lobby" && reply.session === race.session && typeof reply.admin === "string" && Array.isArray(reply.players) && reply.players.length <= 10 && reply.players.every((p) => typeof p === "string") && typeof reply.track === "string" && typeof reply.laps === "number") {
-          setLobby((current) => current.session === race.session ? {
-            ...current,
-            admin: reply.admin.slice(0, 40),
-            players: reply.players.map((p) => p.slice(0, 40)),
-            track: reply.track.slice(0, 40),
-            laps: reply.laps
-          } : current);
-        } else if (reply.type === "result" && reply.session === race.session && reply.result && Array.isArray(reply.result.points) && reply.result.points.length >= 2 && reply.result.points.length <= 10) {
-          const result2 = reply.result;
-          setLobby((current) => current.session === race.session ? { ...current, result: result2, message: "Race complete" } : current);
+      return new Promise((resolve) => {
+        try {
+          figma.showUI(__html__, { width: 960, height: 720, title: "MiniGrid Racers", visible: true });
+          figma.ui.onmessage = (reply) => {
+            if (reply.type === "ready") {
+              figma.ui.postMessage({
+                type: "start",
+                session: race.session,
+                relayUrl: "wss://mm-0sdy.onrender.com/api/relay",
+                name,
+                track: race.track,
+                laps: race.laps
+              });
+            } else if (reply.type === "lobby" && reply.session === race.session && typeof reply.admin === "string" && Array.isArray(reply.players) && reply.players.length <= 10 && reply.players.every((p) => typeof p === "string") && typeof reply.track === "string" && typeof reply.laps === "number") {
+              setLobby((current) => current.session === race.session ? {
+                ...current,
+                admin: reply.admin.slice(0, 40),
+                players: reply.players.map((p) => p.slice(0, 40)),
+                track: reply.track.slice(0, 40),
+                laps: reply.laps
+              } : current);
+            } else if (reply.type === "result" && reply.session === race.session && reply.result && Array.isArray(reply.result.points) && reply.result.points.length >= 2 && reply.result.points.length <= 10) {
+              const result2 = reply.result;
+              setLobby((current) => current.session === race.session ? { ...current, result: result2, message: "Race complete" } : current);
+            }
+          };
+        } catch (error) {
+          setLobby((current) => current.session === race.session ? { ...current, message: `Could not open game: ${String(error)}` } : current);
+          resolve();
         }
-      };
-      figma.showUI(__html__, { width: 960, height: 720, title: "MiniGrid Racers" });
+      });
     };
     const newRace = () => {
       const name = figma.currentUser?.name?.trim().slice(0, 40) || "Guest";
@@ -51,11 +57,11 @@
         message: "",
         admin: name,
         players: [name],
-        track: "Round 2 \xB7 track 1",
+        track: "Harbour Loop",
         laps: 3
       };
       setLobby(race);
-      play(race);
+      return play(race);
     };
     return /* @__PURE__ */ figma.widget.h(
       AutoLayout,
@@ -70,7 +76,7 @@
       /* @__PURE__ */ figma.widget.h(Text, { fontSize: 24, fill: "#FFE800" }, "MiniGrid Racers"),
       /* @__PURE__ */ figma.widget.h(Text, { fontSize: 14, fill: "#FFFFFF" }, "Admin: ", lobby.admin || "\u2014"),
       /* @__PURE__ */ figma.widget.h(Text, { fontSize: 14, width: 300, fill: "#FFFFFF" }, "In lobby: ", lobby.players?.length ? lobby.players.join(", ") : "\u2014"),
-      /* @__PURE__ */ figma.widget.h(Text, { fontSize: 14, fill: "#FFFFFF" }, "Track: ", lobby.track || "Round 2 \xB7 track 1"),
+      /* @__PURE__ */ figma.widget.h(Text, { fontSize: 14, fill: "#FFFFFF" }, "Track: ", lobby.track || "Harbour Loop"),
       /* @__PURE__ */ figma.widget.h(Text, { fontSize: 14, fill: "#FFFFFF" }, "Laps: ", lobby.laps || 3),
       session ? /* @__PURE__ */ figma.widget.h(AutoLayout, { direction: "vertical", spacing: 10 }, /* @__PURE__ */ figma.widget.h(
         AutoLayout,

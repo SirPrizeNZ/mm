@@ -20,10 +20,11 @@ function RaceLobby() {
   const [lobby, setLobby] = useSyncedState<LobbyState>('lobby',
     { session: '', result: null, message: '' });
   const { session, result, message } = lobby;
-  const play = (race: LobbyState): void => {
+  const play = (race: LobbyState): Promise<void> => {
     const name = figma.currentUser?.name?.trim().slice(0, 40) || 'Guest';
-    figma.on('close', () => figma.ui.postMessage({ type: 'disconnect' }));
-    figma.ui.onmessage = (reply: { type?: string; session?: string; result?: Result;
+    return new Promise<void>(resolve => { try {
+      figma.showUI(__html__, { width: 960, height: 720, title: 'MiniGrid Racers', visible: true });
+      figma.ui.onmessage = (reply: { type?: string; session?: string; result?: Result;
       admin?: string; players?: string[]; track?: string; laps?: number }) => {
       if (reply.type === 'ready') {
         figma.ui.postMessage({ type: 'start', session: race.session, relayUrl: __RELAY_URL__, name,
@@ -44,15 +45,19 @@ function RaceLobby() {
         setLobby(current => current.session === race.session
           ? { ...current, result, message: 'Race complete' } : current);
       }
-    };
-    figma.showUI(__html__, { width: 960, height: 720, title: 'MiniGrid Racers' });
+      };
+    } catch (error) {
+      setLobby(current => current.session === race.session
+        ? { ...current, message: `Could not open game: ${String(error)}` } : current);
+      resolve();
+    } });
   };
-  const newRace = (): void => {
+  const newRace = (): Promise<void> => {
     const name = figma.currentUser?.name?.trim().slice(0, 40) || 'Guest';
     const race: LobbyState = { session: newSession(), result: null, message: '',
-      admin: name, players: [name], track: 'Round 2 · track 1', laps: 3 };
+      admin: name, players: [name], track: 'Harbour Loop', laps: 3 };
     setLobby(race);
-    play(race);
+    return play(race);
   };
 
   return <AutoLayout direction="vertical" spacing={10} padding={20} width={340}
@@ -60,7 +65,7 @@ function RaceLobby() {
     <Text fontSize={24} fill="#FFE800">MiniGrid Racers</Text>
     <Text fontSize={14} fill="#FFFFFF">Admin: {lobby.admin || '—'}</Text>
     <Text fontSize={14} width={300} fill="#FFFFFF">In lobby: {lobby.players?.length ? lobby.players.join(', ') : '—'}</Text>
-    <Text fontSize={14} fill="#FFFFFF">Track: {lobby.track || 'Round 2 · track 1'}</Text>
+    <Text fontSize={14} fill="#FFFFFF">Track: {lobby.track || 'Harbour Loop'}</Text>
     <Text fontSize={14} fill="#FFFFFF">Laps: {lobby.laps || 3}</Text>
     {session
       ? <AutoLayout direction="vertical" spacing={10}>

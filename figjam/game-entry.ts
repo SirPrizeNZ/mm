@@ -1,12 +1,11 @@
 /** Browser-side entry for the local FigJam widget iframe. */
-import { startOnline } from '../src/app/online/main';
+import { startMiniGrid } from '../src/app/minigrid/main';
 
 declare global {
   var __SM_FIGJAM_WAIT__: boolean | undefined;
   var __SM_FIGJAM__: { session: string; relayUrl: string; name: string;
-    track?: string; laps?: number; gameDataRoot?: string } | undefined;
+    track?: string; laps?: number } | undefined;
 }
-declare const __GAME_DATA_ROOT__: string;
 
 let started = false;
 const status = document.querySelector<HTMLElement>('#status');
@@ -28,9 +27,8 @@ addEventListener('message', event => {
   globalThis.__SM_FIGJAM__ = {
     session: message.session!, relayUrl: message.relayUrl!, name: message.name?.trim().slice(0, 40) || 'Guest',
     track: message.track, laps: message.laps,
-    gameDataRoot: __GAME_DATA_ROOT__ || undefined,
   };
-  startOnline();
+  void startMiniGrid(globalThis.__SM_FIGJAM__).catch(e => showError(`Race failed to open: ${String(e)}`));
 });
 
 const announceReady = (): void => parent.postMessage({ pluginMessage: { type: 'ready' } }, '*');

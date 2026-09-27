@@ -48,23 +48,17 @@
         <p id="code" hidden></p><a id="share" href="#"></a><p id="who" hidden></p>
         <p id="admin">Admin: —</p>
         <p id="lobby-label">In lobby:</p><ul id="players"></ul>
-        <p id="selection" hidden>Track: Round 2 · track 1 · Laps: 3</p>
+        <p id="selection" hidden>Track: Harbour Loop · Laps: 3</p>
         <p id="countdown" hidden></p>
         <div id="setup" hidden>
           <select id="kind" hidden><option value="race">A race</option></select>
           <select id="cars" hidden><option value="4">4</option><option value="2">2</option><option value="3">3</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select>
           <div class="panel"><label>Track <select id="track"></select></label>
-            <label>Laps <input id="laps" type="number" min="3" max="40" value="3"></label></div>
+            <label>Laps <input id="laps" type="number" min="1" max="10" value="3"></label></div>
           <button id="add" type="button" hidden>Add to playlist</button><ol id="list" hidden></ol>
         </div>
         <img id="map-preview" alt="Selected track map" hidden>
         <button id="start" type="button" hidden disabled>Start the race</button>
-      </div>
-      <div id="needfiles" hidden>
-        <p>Select your installed Micro Machines folder. Files stay on your device.</p>
-        <button id="pickfolder" type="button">Choose game folder</button>
-        <input id="folder" type="file" webkitdirectory multiple hidden>
-        <span id="why"></span>
       </div>
     </div>
     <div id="stage" hidden><canvas id="screen" width="320" height="200"></canvas><p id="overlay" hidden></p></div>

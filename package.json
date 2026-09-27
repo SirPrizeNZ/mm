@@ -1,5 +1,5 @@
 {
-  "name": "scale-miniatures",
+  "name": "minigrid-racers",
   "version": "0.0.1",
   "private": true,
   "license": "GPL-3.0-only",
@@ -7,7 +7,7 @@
     "node": "^20.0.0 || >=22.0.0"
   },
   "type": "module",
-  "description": "Micro Machines (PC, 1994) rewritten in TypeScript from the disassembly, running natively in the browser. No emulator.",
+  "description": "Original multiplayer miniature-car racing widget for FigJam with a Node WebSocket relay.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json --noEmit && vite build",
